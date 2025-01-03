@@ -1,6 +1,15 @@
 const express = require('express')
 const app = express()
 
+// Middleware that allows us to accept requests from ALL origins
+const cors = require('cors')
+app.use(cors())
+
+// Middleware for whenever Express gets an HTTP GET request it will first
+// check if the "dist" directory contains a file corresponding to the request's address.
+// If a file is found, Express will return it. 
+app.use(express.static('dist'))
+
 const morgan = require('morgan')
 
 let persons = [
@@ -28,9 +37,6 @@ let persons = [
 
 app.use(express.json()) 
 app.use(express.urlencoded({ extended: true }))
-// Middleware that allows us to accept requests from ALL origins
-const cors = require('cors')
-app.use(cors())
 
 morgan.token('body', (req) => JSON.stringify(req.body));
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
@@ -91,6 +97,16 @@ app.delete('/api/persons/:id', (request, response) => {
     persons = persons.filter(person => person.id !== id)
     response.status(204).end()
 })
+
+// This defines a middleware function
+// This function will be used for catching requests made to non-existent routes.
+// For these requests, the middleware will return an error message in json format. 
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+  }
+  
+// Middleware
+app.use(unknownEndpoint)
 
 
 // Defines a constant variable called PORT and sets it to 3001.
