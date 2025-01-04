@@ -1,3 +1,4 @@
 # Ignore node_modules
 .env
 node_modules/
+dist/
