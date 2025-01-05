@@ -52,8 +52,12 @@ const requestLogger = (request, response, next) => {
 app.use(requestLogger)
 
 app.get('/', (request, response) => {
-  response.send('<h1>This Server is Fire and Gang</h1>')
+  response.send('<h1>This Server is chill</h1>')
 })
+
+app.get('/', (request, response) => {
+  response.redirect('/api/persons');
+});
 
 app.get('/api/persons', (request, response) => {
     Person.find({}).then(persons => {
