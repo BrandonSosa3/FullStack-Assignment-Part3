@@ -5,43 +5,10 @@ const app = express()
 
 const Person = require('./models/person')
 
-// Middleware that allows us to accept requests from ALL origins
-const cors = require('cors')
-app.use(cors())
-
 // Middleware for whenever Express gets an HTTP GET request it will first
 // check if the "dist" directory contains a file corresponding to the request's address.
 // If a file is found, Express will return it. 
 app.use(express.static('dist'))
-
-app.get('/', (request, response) => {
-  response.sendFile(__dirname + '/dist/index.html');
-});
-
-let persons = [
-    {
-      "id": 1,
-      "name": "Arto Hellas",
-      "number": "040-123456"
-    },
-    {
-      "id": 2,
-      "name": "Ada Lovelace",
-      "number": "39-44-5323523"
-    },
-    {
-      "id": 3,
-      "name": "Dan Abramov",
-      "number": "12-43-234345"
-    },
-    {
-      "id": 4,
-      "name": "Mary Poppendieck",
-      "number": "39-23-6423122"
-    }
-]
-
-app.use(express.json()) 
 
 const requestLogger = (request, response, next) => {
   console.log('Method:', request.method)
@@ -51,7 +18,33 @@ const requestLogger = (request, response, next) => {
   next()
 }
 
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+      return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+      return response.status(400).json({ error: error.message })
+  }
+
+  next(error)
+}
+
+// Middleware that allows us to accept requests from ALL origins
+const cors = require('cors')
+app.use(cors())
+
+
+app.use(express.json()) 
+
+
 app.use(requestLogger)
+
+app.get('/', (request, response) => {
+  // Sends an HTML response with the message "Hello World!"
+  response.send('<h1>This Server is Fire and Gang</h1>')
+})
 
 app.get('/api/persons', (request, response) => {
     Person.find({}).then(persons => {
@@ -73,11 +66,6 @@ app.get('/api/persons/:id', (request, response) => {
         response.json(person)
     })
 })
-
-const generateId = () => {
-    const maxId = persons.length > 0 ? Math.max(...persons.map(n => n.id)) : 0
-    return maxId + 1
-}
 
 app.post('/api/persons', (request, response, next) => {
     const body = request.body
@@ -124,18 +112,6 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint) 
 
-
-const errorHandler = (error, request, response, next) => {
-    console.error(error.message)
-
-    if (error.name === 'CastError') {
-        return response.status(400).send({ error: 'malformatted id' })
-    } else if (error.name === 'ValidationError') {
-        return response.status(400).json({ error: error.message })
-    }
-
-    next(error)
-}
   
 // this has to be the last loaded middleware, also all the routes should be registered before this!
 app.use(errorHandler)
