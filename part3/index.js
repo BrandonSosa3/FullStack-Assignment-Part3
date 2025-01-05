@@ -52,7 +52,7 @@ const requestLogger = (request, response, next) => {
 app.use(requestLogger)
 
 app.get('/', (request, response) => {
-  response.redirect('/api/persons');
+  response.redirect('/persons');
 });
 
 app.get('/api/persons', (request, response) => {
