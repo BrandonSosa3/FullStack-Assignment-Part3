@@ -52,10 +52,6 @@ const requestLogger = (request, response, next) => {
 app.use(requestLogger)
 
 app.get('/', (request, response) => {
-  response.send('<h1>This Server is chill</h1>')
-})
-
-app.get('/', (request, response) => {
   response.redirect('/api/persons');
 });
 
