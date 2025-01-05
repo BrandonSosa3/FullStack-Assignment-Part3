@@ -14,7 +14,9 @@ app.use(cors())
 // If a file is found, Express will return it. 
 app.use(express.static('dist'))
 
-
+app.get('/', (request, response) => {
+  response.sendFile(__dirname + '/dist/index.html');
+});
 
 let persons = [
     {
@@ -50,10 +52,6 @@ const requestLogger = (request, response, next) => {
 }
 
 app.use(requestLogger)
-
-app.get('/', (request, response) => {
-  response.redirect('/persons');
-});
 
 app.get('/api/persons', (request, response) => {
     Person.find({}).then(persons => {
